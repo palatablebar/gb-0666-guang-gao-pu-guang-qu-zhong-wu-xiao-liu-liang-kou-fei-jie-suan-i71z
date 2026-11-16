@@ -28,10 +28,13 @@
 | TRAP-11 | 时区混用 | 静默误算或覆盖证据 | UTC存储北京时间账日 | `app/modules/m2_contract/rules.py` | `tests/test_contract.py::test_utc` |
 | TRAP-14 | 重复回调和键冲突 | 静默误算或覆盖证据 | 全字段比较，相同去重冲突隔离 | `app/modules/m2_contract/rules.py` | `tests/test_contract.py::test_duplicate` |
 | TRAP-19 | 机器人和频次规则同时命中 | 静默误算或覆盖证据 | 机器人优先且不消耗频次 | `app/modules/m3_model/rules.py` | `tests/test_model.py::test_priority` |
-| TRAP-26 | 陈旧复核覆盖新版本 | 静默误算或覆盖证据 | revision条件更新 | `app/modules/m7_batches/rules.py` | `tests/test_batches.py::test_stale` |
+| TRAP-26 | 陈旧复核覆盖新版本 | 静默误算或覆盖证据 | revision条件更新 | `app/store.py` | `tests/test_batches.py::test_stale` |
+| TRAP-27 | 同批重跑或重复核验 | 扣款重复入账 | 摘要去重+revision条件更新+已核验拒绝 | `app/store.py` `app/modules/m7_batches/rules.py` | `tests/test_verify.py::test_no_double_deduct` |
+| TRAP-28 | 核验推翻后旧账单灭失 | 无法恢复账单与举证 | 变更前归档旧版本，可恢复 | `app/store.py` | `tests/test_verify.py::test_restore` |
 
 ## 对账规则
 原始行=采信事件+无效曝光+重复回调+其他隔离+空行。原始费用-合法扣减=应付。CPM单位为CNY/千次，先按渠道和北京时间账日求和，再HALF_UP舍入到分。扣减额采用原始舍入总额与净额之差，保证分币守恒。机器事件优先于频次，机器事件不消耗频次；频次按渠道、账日、用户计数。冲销事件本身不计曝光，不占频次，须不早于原事件且渠道相同。ID保留为字符串。
+疑似机器曝光（bot=2）照常采信并参与频次，金额暂扣待核验：本次实付=应付净额-待核验暂扣。核验确认机器则暂扣转已确认扣款、实付不变；核验失败（推翻）则暂扣释放并入实付补付。疑似曝光被合法冲销时同步释放其暂扣。变更前归档旧版本账单，恢复归档即还原旧账单及证据。
 
 ## 已知不覆盖
 本地样例资费按月固定，不实现实时竞价和竞价超时。冲销只处理整次曝光，不支持部分曝光冲销。重复冲销与对未采信曝光的冲销进入隔离，不能由人工直接改为计费。

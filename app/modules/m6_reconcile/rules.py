@@ -9,4 +9,5 @@ def reconcile(result,invoices):
         net=groups.get(channel,Decimal(0));difference=Decimal(billed)-net
         results.append({"channel":channel,"computed":str(net),"billed":billed,"difference":str(difference),"status":"一致" if difference==0 else "有差异"})
     gross=sum((Decimal(x["gross"]) for x in result["results"]),Decimal(0));credit=sum((Decimal(x["credit"]) for x in result["results"]),Decimal(0));net=sum(groups.values(),Decimal(0))
-    return {"accepted":good,"invalid":invalid,"duplicates":duplicates,"quarantined":q,"count_ok":result["input_count"]==good+invalid+duplicates+q+result["blank_count"],"gross":str(gross),"credit":str(credit),"net":str(net),"amount_ok":gross-credit==net,"channels":results}
+    pending=sum((Decimal(x["pending"]) for x in result["results"]),Decimal(0));payable=sum((Decimal(x["payable"]) for x in result["results"]),Decimal(0))
+    return {"accepted":good,"invalid":invalid,"duplicates":duplicates,"quarantined":q,"count_ok":result["input_count"]==good+invalid+duplicates+q+result["blank_count"],"gross":str(gross),"credit":str(credit),"net":str(net),"pending":str(pending),"payable":str(payable),"amount_ok":gross-credit==net and net-pending==payable,"channels":results}

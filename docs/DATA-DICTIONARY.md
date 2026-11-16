@@ -7,3 +7,5 @@
 原始行号对应 CSV 解析器的物理末行。UTF-8 BOM 与 GB18030 均支持，坏行进入隔离区，结构性错误返回422。空文件、仅表头和全空记录分别返回不同原因码。金额与用量使用 Decimal，对外以字符串返回。编码和编号按字符串保留。
 
 run_id 由输入摘要、参数和规则版本生成；revision 为人工复核版本。证据 CSV 含运行号、来源行、原因码、原始字段及最终结论。
+
+bot 取值：0 正常、1 确认机器（无效，不消耗频次）、2 疑似机器（采信并计频次，金额暂扣待核验）。日账聚合含 pending（待核验暂扣）与 payable（本次实付=net-pending）；对账守恒为 gross-credit=net 且 net-pending=payable。核验结论记录于 verification（确认/推翻+时间），每批最多一次；archives 表按 (run_id, revision) 归档变更前账单与结论，restore 以归档正文覆盖当前版本并再归档，证据 CSV 随当前正文还原。

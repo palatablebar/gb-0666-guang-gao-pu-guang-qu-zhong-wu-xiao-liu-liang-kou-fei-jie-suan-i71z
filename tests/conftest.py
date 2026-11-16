@@ -5,3 +5,5 @@ def isolated(tmp_path,monkeypatch):monkeypatch.setenv("DATA_DIR",str(tmp_path))
 def dirty():return {"sample":"dirty"}
 @pytest.fixture
 def clean():return {"sample":"clean"}
+@pytest.fixture
+def pending():return {"sample":"pending"}

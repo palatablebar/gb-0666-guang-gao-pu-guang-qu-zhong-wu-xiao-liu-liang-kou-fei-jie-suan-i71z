@@ -24,7 +24,7 @@ def normalize(row,policy):
         if row[key].strip() in SENTINELS:reject("MISSING","事件字段缺失")
     if row["channel"] not in policy["channels"]:reject("CONTRACT","渠道资费缺失")
     if row["kind"] not in {"impression","reversal"}:reject("CONTRACT","事件类型未知")
-    if row["bot"] not in {"0","1"}:reject("CONTRACT","机器标记无效")
+    if row["bot"] not in {"0","1","2"}:reject("CONTRACT","机器标记无效")
     try:
         at=datetime.fromisoformat(row["at"].replace("Z","+00:00"))
         if at.tzinfo is None:raise ValueError()

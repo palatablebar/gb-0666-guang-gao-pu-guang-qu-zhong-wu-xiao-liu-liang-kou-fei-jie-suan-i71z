@@ -7,7 +7,7 @@ def judge(rows,cap):
         key=(row["channel"],row["day"],row["user_id"])
         if row["bot"]=="1":invalid.append({**row,"code":"BOT"});continue
         if frequency[key]>=cap:invalid.append({**row,"code":"CAP"});continue
-        frequency[key]+=1;accepted.append(row)
+        frequency[key]+=1;accepted.append({**row,"suspect":True} if row["bot"]=="2" else row)
     return accepted,invalid
 
 def counts(invalid):
